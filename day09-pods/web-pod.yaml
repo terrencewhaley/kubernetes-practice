@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web-pod
+  labels:
+    app: web
+    tier: frontend
+spec:
+  containers:
+    - name: web
+      image: nginx:1.25
+      ports:
+        - containerPort: 80
+      env:
+        - name: APP_ENV
+          value: dev
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "100m"
+        limits:
+          memory: "128Mi"
+          cpu: "200m"
+    - name: logger
+      image: busybox:1.36
+      command: ["sh", "-c", "while true; do echo $(date); sleep 5; done"]
