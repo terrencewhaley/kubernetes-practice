@@ -20,5 +20,7 @@ kubectl config use-context kind-cka
 | day09-pods | Pod YAML, multi-container, env, resources |
 | day10-replicaset-deployment | ReplicaSet set-based selectors, Deployment rollout/rollback |
 | day12-services | ClusterIP, NodePort, LoadBalancer, ExternalName |
+| day13-imperative | Timed imperative drill: create/expose, `--dry-run`, test pods |
+| day14-namespaces | Namespaces, cross-namespace DNS, default namespace in context |
 
 Reset a day: `kubectl delete -f solution/<file>` (or delete the objects by name).

@@ -9,6 +9,15 @@ Add to it as new days are covered. Items marked *(course)* come from the lecture
 - **Imperative first, then edit:** generate a skeleton, don't type YAML from scratch.
   `kubectl run|create|expose ... --dry-run=client -o yaml > file.yaml`
 - **Use `kubectl explain` instead of memorizing fields:** `kubectl explain pod.spec.containers.resources`, `kubectl explain rs.spec.selector.matchExpressions`. Add `--recursive` to see the whole tree.
+- **When you freeze, use the lookup ladder in this order** (all allowed on the exam):
+  1. `kubectl <verb> <thing> -h`: the examples are at the top, and the flag list shows what can be set imperatively (e.g. `kubectl create service nodeport -h` has `--node-port`).
+  2. `kubectl explain <path>` for YAML fields.
+  3. kubernetes.io docs (search the exact task, e.g. "debug services"), including the kubectl cheat sheet.
+  Don't search anywhere else; the first two answer most questions in seconds.
+- **Throwaway test pod template (memorize this one):**
+  `kubectl run tmp --rm -it --restart=Never --image=busybox:1.36 -- wget -qO- http://SERVICE:PORT`
+  (`--rm` deletes it afterward, `--restart=Never` makes it a plain Pod, everything after `--` is the command.) Add `-n NS` for another namespace.
+- Keep "why does it work this way?" questions for review time. During a timed task, finish first and note the question to study later.
 - Add only what the task asks for. Extra fields cost time and can trip checkers.
 - `kubectl get pods --show-labels` and `kubectl get endpoints` are the fastest debug views for selector problems.
 
@@ -61,7 +70,8 @@ Add to it as new days are covered. Items marked *(course)* come from the lecture
 | ExternalName | inside the cluster | DNS CNAME to an external host; no proxying, no selector |
 
 - Know the three ports: `port` (the Service's), `targetPort` (the container's), `nodePort` (on each node).
-- `kubectl expose deploy NAME --port=80 --target-port=80 --type=NodePort` works, but **you cannot set a specific `nodePort` with `expose`**, so edit the generated YAML.
+- `kubectl expose deploy NAME --port=80 --target-port=80 --type=NodePort` works, but **`expose` has no `--node-port` flag**, so for a specific nodePort either edit the generated YAML, or use `kubectl create service nodeport NAME --tcp=80:80 --node-port=30090`.
+- **`expose` vs `create service`:** `expose deploy X` reads the Deployment and copies its pod selector, so the Service is guaranteed to match. `create service ...` knows nothing about Deployments and sets the selector to `app=<service-name>`, which only matches if your pods happen to carry that label (fix it by editing the YAML or naming the service after the app). When the selector matters, prefer `expose`.
 - `kubectl create svc externalname NAME --external-name host.example.com`
 - **Empty endpoints = selector doesn't match any pod's labels.** Check `kubectl get endpoints NAME` first.
 - Test from inside the cluster: `kubectl run tmp --rm -it --restart=Never --image=busybox:1.36 -- wget -qO- http://SVC`
@@ -70,6 +80,11 @@ Add to it as new days are covered. Items marked *(course)* come from the lecture
 ## 6. Imperative commands (Day 13) *(course)*
 
 - Flags worth knowing: `--dry-run=client` (no server contact), `--dry-run=server` (validates against the API server), `-o yaml`, `--rm`.
+- **Do you need a file at all?** Only if you must edit something flags can't set. Speed order: (1) flags, (2) generate with `--dry-run=client -o yaml`, edit, apply, (3) hand-written YAML.
+  - If the object only needs to exist, skip the file: `kubectl create deploy X --image=IMG --dry-run=client -o yaml | kubectl apply -f -`
+  - `>` **overwrites** the file each time; `>>` appends. Use a new filename per object, or append with a `---` line between objects.
+  - `kubectl expose deploy X --dry-run=client` reads the Deployment from the cluster, so the Deployment must already exist.
+  - For a one-line tweak to a live object, `kubectl edit TYPE NAME` can be faster than a file.
 - Pod labels at creation: `kubectl run NAME --image=IMG --labels="a=b,c=d"`; `--restart=Never` makes it a plain Pod.
 - Pod labels set on a Deployment's template can't be set imperatively; edit the YAML.
 - Multiple objects in one file are separated by `---`.
