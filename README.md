@@ -22,5 +22,6 @@ kubectl config use-context kind-cka
 | day12-services | ClusterIP, NodePort, LoadBalancer, ExternalName |
 | day13-imperative | Timed imperative drill: create/expose, `--dry-run`, test pods |
 | day14-namespaces | Namespaces, cross-namespace DNS, default namespace in context |
+| day15-scheduling | nodeName, nodeSelector, node labels, taints and tolerations |
 
 Reset a day: `kubectl delete -f solution/<file>` (or delete the objects by name).

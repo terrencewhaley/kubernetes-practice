@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: pinned
+  name: pinned
+spec:
+  nodeName: cka-worker2
+  containers:
+    - image: nginx:1.25
+      name: pinned
+      resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
